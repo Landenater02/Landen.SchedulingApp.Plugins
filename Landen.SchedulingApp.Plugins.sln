@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Landen.SchedulingApp.Plugins", "Landen.SchedulingApp.Plugins.csproj", "{BA6CF112-0C21-CC52-6029-FA4B4D08E341}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA6CF112-0C21-CC52-6029-FA4B4D08E341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA6CF112-0C21-CC52-6029-FA4B4D08E341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA6CF112-0C21-CC52-6029-FA4B4D08E341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA6CF112-0C21-CC52-6029-FA4B4D08E341}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2ECEDC9C-D9B9-4EB5-BE29-687266AE7C5D}
+	EndGlobalSection
+EndGlobal
