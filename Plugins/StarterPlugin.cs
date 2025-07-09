@@ -1,16 +1,16 @@
 using Microsoft.Xrm.Sdk;
 using System;
 
-namespace Landen.SchedulingApp.Plugins
+namespace Landen.SchedulingApp.Plugins.Plugins
 {
     /// <summary>
     /// Plugin development guide: https://docs.microsoft.com/powerapps/developer/common-data-service/plug-ins
     /// Best practices and guidance: https://docs.microsoft.com/powerapps/developer/common-data-service/best-practices/business-logic/
     /// </summary>
-    public class Plugin1 : PluginBase
+    public class StarterPlugin : PluginBase
     {
-        public Plugin1(string unsecureConfiguration, string secureConfiguration)
-            : base(typeof(Plugin1))
+        public StarterPlugin(string unsecureConfiguration, string secureConfiguration)
+            : base(typeof(StarterPlugin))
         {
             // TODO: Implement your custom configuration handling
             // https://docs.microsoft.com/powerapps/developer/common-data-service/register-plug-in#set-configuration-data
