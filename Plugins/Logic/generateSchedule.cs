@@ -1,5 +1,8 @@
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Landen.SchedulingApp.Plugins
 {
@@ -9,6 +12,12 @@ namespace Landen.SchedulingApp.Plugins
     /// </summary>
     public class generateSchedule : PluginBase
     {
+
+        // <Positions, queue<employees>
+        Dictionary<Entity, Queue<Entity>> shiftsMap = new Dictionary<Entity, Queue<Entity>>();
+        Dictionary<Entity,Dictionary<String,int>> positionCounts = new Dictionary<Entity,Dictionary<String, int>>();
+        //<days<position,count>>, put in the day, then put in the position, get the count
+
         public generateSchedule(string unsecureConfiguration, string secureConfiguration)
             : base(typeof(generateSchedule))
         {
@@ -34,7 +43,7 @@ namespace Landen.SchedulingApp.Plugins
             }
 
             var context = localPluginContext.PluginExecutionContext;
-
+            var service = localPluginContext.OrgSvcFactory.CreateOrganizationService(context.UserId);
 
             /***
              * 
@@ -60,7 +69,82 @@ EMPLOYEE
 	need to create a new "switch slots with another employee" which will create the process that employees can switch with another on the schedule without having to bug the scheduler, but still keeping the scheduler aware
 	Flesh out the rest of availability change requests
 	*/
+
+            //grab every Employee
+
+
+
+
             
+            // Get schedule record
+            Entity schedule = (Entity)context.InputParameters["Target"];
+
+            //TODO: add lookup to settings entity on Schedule
+            EntityReference settingsRef = schedule.GetAttributeValue<EntityReference>("ljh_autogeneratescheduledata");
+
+            Entity settings = service.Retrieve("ljh_autogeneratescheduledata", settingsRef.Id, new ColumnSet(true));//TODO: filter later
+
+            //TODO: create a field mapping or something so that the settings lowest child has a link to the days and the settings entities
+
+
+
+
+            // Step 1: Get all position types
+            var positionTypes = service.RetrieveMultiple(new QueryExpression("ljh_positiontype")
+            {
+                ColumnSet = new ColumnSet("ljh_name")
+            });
+
+            Dictionary<string, Queue<EntityReference>> roleQueues = new Dictionary<string, Queue<EntityReference>>();
+
+            foreach (var position in positionTypes.Entities)
+            {
+                string roleName = position.GetAttributeValue<string>("ljh_name");
+
+                // Step 2: Get all employees who match this role
+                QueryExpression employeeQuery = new QueryExpression("ljh_employee")
+                {
+                    ColumnSet = new ColumnSet("ljh_employeeid", "ljh_totalhoursworked", "ljh_lastassigneddate")
+                };
+                employeeQuery.Criteria.AddCondition("ljh_positiontype", ConditionOperator.Equal, position.Id);
+
+                var employees = service.RetrieveMultiple(employeeQuery).Entities;
+
+                List<(Tuple<int, double, DateTime, int>, EntityReference)> sortedList = new();
+
+                foreach (var emp in employees)
+                {
+                    int assignedThisSchedule = 0; // You’d count from current draft schedule
+                    double totalHoursWorked = emp.GetAttributeValue<decimal?>("ljh_totalhoursworked") ?? 0;
+                    DateTime lastAssignedDate = emp.GetAttributeValue<DateTime?>("ljh_lastassigneddate") ?? DateTime.MinValue;
+
+                    int preferenceScore = CalculateShiftPreferenceScore(service, emp.Id, startDate);
+
+                    sortedList.Add((Tuple.Create(assignedThisSchedule, totalHoursWorked, lastAssignedDate, -preferenceScore),
+                                    emp.ToEntityReference()));
+                }
+
+                var ranked = sortedList.OrderBy(x => x.Item1).Select(x => x.Item2);
+                roleQueues[roleName] = new Queue<EntityReference>(ranked);
+            }
+
+            // roleQueues now contains the employee queues per role, sorted by logic
+            // Continue with assigning shifts using these queues...
+        
+      
+
+
         }
+
+private int CalculateShiftPreferenceScore(IOrganizationService service, Guid employeeId, DateTime scheduleStart)
+{
+    int score = 0;
+    // Implement lookup logic: pull shift preferences via N:N and evaluate against planned schedule
+    // Example: Retrieve ljh_shiftpreference where ljh_employee == employeeId
+    return score;
+}
+
     }
+
+    
 }
